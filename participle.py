@@ -10,7 +10,6 @@ class Article:
     words = []
     total_count = 0
     tf = {}
-    idf = {}
     w = {}
 
     def __init__(self, words):
@@ -21,11 +20,20 @@ class Article:
         for word in self.tf:
             self.tf[word] = self.tf[word] / self.total_count
 
+    def get_w(self, idf_dic = None, idf_json_file=r'.\idf.json'):
+        if idf_dic is None:
+            f = open(idf_json_file,'r')
+            idf_dic = json.load(f)
+
+        for word, tf_value in  self.tf.items():
+            self.w[word] = tf_value * idf_dic.get(word, 100)
+
     @staticmethod
     def get_idf_json_file(articles):
         print("Generating ------> " + ".\idf.json" + ".......")
-        N = len(articles)
+        n = len(articles)
         idf = {}
+
         for sample in articles:
             for word in sample.tf:
                 if word in idf:
@@ -35,7 +43,7 @@ class Article:
                     for article in articles:
                         if word in article.tf:
                             df = df + 1
-                    idf[word] = math.log(N / df)
+                    idf[word] = math.log(n / df)
 
         idf_json = json.dumps(idf, sort_keys=True, indent=4, separators=(',', ': '))
 

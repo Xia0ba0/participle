@@ -1,5 +1,4 @@
 .vscode/
 .idea/
 venv/
-idf.json
 __pycache__/
