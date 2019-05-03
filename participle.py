@@ -41,7 +41,7 @@ class Article:
                     #print(df)
                     idf[word] = math.log(N / df)
 
-        idf_json = json.dumps(idf)
+        idf_json = json.dumps(idf, sort_keys=True, indent=4, separators=(',',': '))
 
         file = open('./idf.json', 'w')
         file.write(idf_json)
@@ -98,9 +98,3 @@ class Participle:
                 full_path = os.path.join(root,file)
                 #print("Resolving ------> "+full_path+".......")
                 self.articles_list.append(self.resolve_file(full_path))
-
-
-def show_idf():
-    with open('example.json','r') as idf:
-        json_string = json.load(idf)
-        print(json_string)
