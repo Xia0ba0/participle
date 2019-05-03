@@ -23,17 +23,22 @@ class Article:
 
     @staticmethod
     def get_idf_json_file(articles):
+        print("Generating ------> " + "idf.json" + ".......")
         N = len(articles)
+        print("N = %d" % N)
         idf = {}
         for sample in articles:
-            for word in sample:
+            for word in sample.tf:
                 if word in idf:
+                    print(sample.tf[word])
                     continue
                 else:
                     df = 0
                     for article in articles:
                         if word in article.tf:
-                            df += 1
+                            #print(word)
+                            df = df + 1
+                    #print(df)
                     idf[word] = math.log(N / df)
 
         idf_json = json.dumps(idf)
@@ -49,7 +54,7 @@ class Participle:
     articles_list = []
 
     def __init__(self, dicfile):
-        with open(dicfile, 'r') as dic:
+        with open(dicfile, 'r', encoding="gb18030",errors="ignore") as dic:
             while True:
                 line = dic.readline().strip()
                 length = len(line)
@@ -61,11 +66,11 @@ class Participle:
 
                 self.words_set.add(line)
 
-    def resovle_file(self, srcfile, article_object=True):
+    def resolve_file(self, srcfile, article_object=True):
         result = []
         index = 0
 
-        with open(srcfile, 'r', encoding="UTF-8") as src:
+        with open(srcfile, 'r', encoding="gb18030",errors="ignore") as src:
             text = src.read().strip()
             text_length = len(text)
 
@@ -90,4 +95,12 @@ class Participle:
         self.articles_list = []
         for root, dirs, files in os.walk(dir, topdown=False):
             for file in files:
-                self.articles_list.append(self.resolve_file(file))
+                full_path = os.path.join(root,file)
+                #print("Resolving ------> "+full_path+".......")
+                self.articles_list.append(self.resolve_file(full_path))
+
+
+def show_idf():
+    with open('example.json','r') as idf:
+        json_string = json.load(idf)
+        print(json_string)

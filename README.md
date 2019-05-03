@@ -9,6 +9,8 @@
 
 + ***Participle*** 是分词器， 可以单文件分词 和 深度优先遍历目录分词
 
++ ***Article*** 的静态方法 ***Article.get_idf_json_file*** 接受一个 ***Article Object List*** 参数， 统计样本集中各个词语的 ***idf*** 值，  然后在当前目录生成 ***idf.json***
+
 ## ***TODO*** :
 1. ***Article*** 类的词语权重计算方法
 2. 分词效果评估
