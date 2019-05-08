@@ -17,6 +17,8 @@ if __name__ == '__main__':
     #传入上一步得到的 Article Object List
     #在当前目录生成 idf.json
     """
+
+
     # Article.get_idf_json_file(resolver.articles_list)
 
     # 装饰器exe_time接受一个函数 返回这个函数的执行结果，以及执行时间
@@ -36,8 +38,8 @@ if __name__ == '__main__':
     right_num = 0
     for word in article.words:
         if word in cut:
-            right_num +=1
-    print("relative accuracy: %f%%" % (right_num*100/article.total_count))
+            right_num += 1
+    print("relative accuracy: %f%%" % (right_num * 100 / article.total_count))
 
     article.get_w()
     for keyword, weight in article.get_top_10():
