@@ -4,15 +4,19 @@ from collections import Counter
 import os
 import math
 import json
-
+import re
 
 class Article:
+    file_name = ''
+
     words = []
     total_count = 0
     tf = {}
     w = {}
 
-    def __init__(self, words):
+    def __init__(self, filename, words):
+        self.file_name = filename
+
         self.words = words
         self.total_count = len(words)
 
@@ -20,12 +24,12 @@ class Article:
         for word in self.tf:
             self.tf[word] = self.tf[word] / self.total_count
 
-    def get_w(self, idf_dic = None, idf_json_file=r'.\idf.json'):
+    def get_w(self, idf_dic=None, idf_json_file=r'.\idf.json'):
         if idf_dic is None:
-            f = open(idf_json_file,'r')
+            f = open(idf_json_file, 'r')
             idf_dic = json.load(f)
 
-        for word, tf_value in  self.tf.items():
+        for word, tf_value in self.tf.items():
             self.w[word] = tf_value * idf_dic.get(word, 100)
 
     def get_top_10(self):
@@ -78,7 +82,7 @@ class Participle:
         index = 0
 
         with open(srcfile, 'r', encoding="gb18030", errors="ignore") as src:
-            text = src.read().strip()
+            text = re.sub(r'[^0-9A-Za-z\u4E00-\u9FFF]+', '', src.read())
             text_length = len(text)
 
         while index < text_length:
@@ -94,7 +98,7 @@ class Participle:
                     index += 1
                     break
         if article_object:
-            return Article(result)
+            return Article(srcfile, result)
         else:
             return result
 
