@@ -25,22 +25,37 @@ if __name__ == '__main__':
     # resovler.resovle_file 返回文章的Article 对象实例
     @exe_time
     def get_time():
-        return resolver.resolve_file('./test.txt')
+        return resolver.resolve_file('./test1.txt')
 
 
     # 获取执行时间，文件大小
-    article, time = get_time()
-    size = get_size(article.file_name)
+    article1, time = get_time()
+    size = get_size(article1.file_name)
     print("speed: %fs/k" % (time / (size / 1024)))
 
     # 获取jieba分词结果
-    cut = get_real_cut(article.file_name)
+    cut = get_real_cut(article1.file_name)
     right_num = 0
-    for word in article.words:
+    for word in article1.words:
         if word in cut:
             right_num += 1
-    print("relative accuracy: %f%%" % (right_num * 100 / article.total_count))
+    print("relative accuracy: %f%%" % (right_num * 100 / article1.total_count))
 
-    article.get_w()
-    for keyword, weight in article.get_top_10():
+    article1.get_w()
+    print("keywords of %s: " % article1.file_name)
+    for keyword, weight in article1.get_top_10():
         print(keyword, weight)
+
+    article2 = resolver.resolve_file(r'./test2.txt')
+    article2.get_w()
+    print("keywords of %s: " % article2.file_name)
+    for keyword, weight in article2.get_top_10():
+        print(keyword, weight)
+
+    """
+    Article static method： get_similarity
+            接受两个Article对象 生成Article.words 的 numpy.array() 向量
+            返回夹角余弦方法计算的这两篇文本间的相似度
+    """
+    similarity = Article.get_similarity(article1, article2)
+    print("similarity between %s and %s is: %f" % (article1.file_name, article2.file_name, similarity))

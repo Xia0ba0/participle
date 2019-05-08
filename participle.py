@@ -5,6 +5,7 @@ import os
 import math
 import json
 import re
+import numpy
 
 class Article:
     file_name = ''
@@ -57,6 +58,22 @@ class Article:
         file = open('./idf.json', 'w')
         file.write(idf_json)
         file.close()
+
+    @staticmethod
+    def get_similarity(article1, article2):
+        merge_words = {**article1.tf, **article2.tf}
+        v1 = []
+        v2 = []
+        for word in list(merge_words):
+            v1.append(article1.tf.get(word, 0))
+            v2.append(article2.tf.get(word, 0))
+
+        v1 = numpy.array(v1)
+        v2 = numpy.array(v2)
+
+        son = (v1 * v2).sum()
+        monther = math.sqrt(numpy.square(v1).sum()) * math.sqrt(numpy.square(v2).sum())
+        return son / monther
 
 
 class Participle:
