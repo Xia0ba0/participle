@@ -28,6 +28,9 @@ class Article:
         for word, tf_value in  self.tf.items():
             self.w[word] = tf_value * idf_dic.get(word, 100)
 
+    def get_top_10(self):
+        return sorted(self.w.items(), key=lambda x: x[1], reverse=True)[0:10]
+
     @staticmethod
     def get_idf_json_file(articles):
         print("Generating ------> " + ".\idf.json" + ".......")
