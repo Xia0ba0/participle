@@ -8,14 +8,8 @@ import re
 import numpy
 
 class Article:
-    file_name = ''
-
-    words = []
-    total_count = 0
-    tf = {}
-    w = {}
-
     def __init__(self, filename, words):
+        self.w = {}
         self.file_name = filename
 
         self.words = words
