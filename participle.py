@@ -7,10 +7,12 @@ import json
 import re
 import numpy
 
+
 class Article:
-    def __init__(self, filename, words):
+    def __init__(self, filename, words, tag='no'):
         self.w = {}
         self.file_name = filename
+        self.tag = tag
 
         self.words = words
         self.total_count = len(words)
@@ -73,7 +75,6 @@ class Article:
 class Participle:
     words_set = set()
     max_length = 0
-    articles_list = []
 
     def __init__(self, dic_file):
         with open(dic_file, 'r', encoding="gb18030", errors="ignore") as dic:
@@ -88,7 +89,7 @@ class Participle:
 
                 self.words_set.add(line)
 
-    def resolve_file(self, srcfile, article_object=True):
+    def resolve_file(self, srcfile, article_object=True, tag='no'):
         result = []
         index = 0
 
@@ -109,14 +110,16 @@ class Participle:
                     index += 1
                     break
         if article_object:
-            return Article(srcfile, result)
+            return Article(srcfile, result, tag)
         else:
             return result
 
-    def resolve_dir(self, dir_name):
-        self.articles_list = []
+    def resolve_dir(self, dir_name, tag='no'):
+        articles_list = []
         for root, dirs, files in os.walk(dir_name, topdown=False):
             for file in files:
                 full_path = os.path.join(root, file)
                 print("Resolving  ------> " + full_path + ".......")
-                self.articles_list.append(self.resolve_file(full_path))
+                articles_list.append(self.resolve_file(full_path, tag))
+
+        return articles_list

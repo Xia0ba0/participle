@@ -5,12 +5,13 @@ from utils import exe_time
 from utils import get_size
 from utils import get_real_cut
 
-if __name__ == '__main__':
+
+def ex4():
     # 传入词典， 初始化分词器
     resolver = Participle(r'.\words.txt')
 
-    # 遍历样本集合并分词 返回一个 Article Object List， 位于resolver.article_list
-    # resolver.resolve_dir(r'.\体育领域\体育分类测试文档')
+    # 遍历样本集合并分词 返回一个 Article Object List
+    # article_list = resolver.resolve_dir(r'.\体育领域\体育分类测试文档')
 
     """
     用Article 静态方法 get_idf_json_file 统计样本集中各词语的idf值
@@ -18,15 +19,13 @@ if __name__ == '__main__':
     #在当前目录生成 idf.json
     """
 
-
-    # Article.get_idf_json_file(resolver.articles_list)
+    # Article.get_idf_json_file(articles_list)
 
     # 装饰器exe_time接受一个函数 返回这个函数的执行结果，以及执行时间
     # resovler.resovle_file 返回文章的Article 对象实例
     @exe_time
     def get_time():
         return resolver.resolve_file('./test1.txt')
-
 
     # 获取执行时间，文件大小
     article1, time = get_time()
@@ -59,3 +58,13 @@ if __name__ == '__main__':
     """
     similarity = Article.get_similarity(article1, article2)
     print("similarity between %s and %s is: %f" % (article1.file_name, article2.file_name, similarity))
+
+
+def ex5():
+    resolver = Participle(r'.\words.txt')
+    resolver.resolve_dir(r'.\体育领域\体育分类测试文档')
+
+
+if __name__ == '__main__':
+    #ex4()
+    ex5()
