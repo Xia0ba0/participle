@@ -5,6 +5,9 @@ from utils import exe_time
 from utils import get_size
 from utils import get_real_cut
 
+from train import Class
+
+import json
 
 def ex4():
     # 传入词典， 初始化分词器
@@ -62,9 +65,16 @@ def ex4():
 
 def ex5():
     resolver = Participle(r'.\words.txt')
-    resolver.resolve_dir(r'.\体育领域\体育分类测试文档')
+    classes = Class.get_classes(r'.\TEST', resolver)
+    Class.get_chi(classes)
+
+def test():
+    f = open('./chi.json', 'r')
+    chi_dic = json.load(f)
+    return sorted(chi_dic["01足球"].items(), key=lambda x: x[1], reverse=True)[0:50]
 
 
 if __name__ == '__main__':
-    #ex4()
-    ex5()
+    # ex4()
+    #ex5()
+    print(test())

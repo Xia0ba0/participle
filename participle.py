@@ -110,7 +110,7 @@ class Participle:
                     index += 1
                     break
         if article_object:
-            return Article(srcfile, result, tag)
+            return Article(srcfile, result, tag=tag)
         else:
             return result
 
@@ -120,6 +120,6 @@ class Participle:
             for file in files:
                 full_path = os.path.join(root, file)
                 print("Resolving  ------> " + full_path + ".......")
-                articles_list.append(self.resolve_file(full_path, tag))
+                articles_list.append(self.resolve_file(full_path, tag=tag))
 
         return articles_list
