@@ -9,6 +9,9 @@ class Class:
         self.path = path
         self.articles = resolver.resolve_dir(path, tag=tag)
         self.length = len(self.articles)
+        self.total_words = 0
+        for article in self.articles:
+            self.total_words += article.total_count
 
     def term_in(self, term):
         count = 0
@@ -78,7 +81,6 @@ class Class:
 
         hc = 0 - class_count * math.log(1 / class_count, 2)
 
-        print("Generating ------> " + ".\ig.json" + ".......")
         for _class in classes:
             for article in _class.articles:
                 for term in article.tf:
@@ -112,20 +114,9 @@ class Class:
                     count += 1
         return count
 
-    @staticmethod
-    def get_feature():
-        feature = []
-        f = open('./chi.json', 'r')
-        chi_dic = json.load(f)
-        for _class, dic in chi_dic.items():
-            sort_tup = sorted(dic.items(), key=lambda x: x[1], reverse=True)[0:100]
-            count = 0
-            for word, value in sort_tup:
-                if word in feature:
-                    continue
-                feature.append(word)
-                count += 1
 
-                if count == 15:
-                    break
-        return feature
+class Classifier:
+    def __init__(self, chi_dic=None, chi_json_file=r'.\idf.json'):
+        if chi_dic is None:
+            f = open(chi_json_file, 'r')
+            chi_dic = json.load(f)
