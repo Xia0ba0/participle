@@ -10,53 +10,41 @@ class Class:
         self.articles = resolver.resolve_dir(path, tag=tag)
         self.length = len(self.articles)
 
-    def term_in(self, term):
-        count = 0
+        self.total_words = 0
+        for article in self.articles:
+            self.total_words += article.total_count
+
+    def get_term_in(self, term):
+        times = 0
         for article in self.articles:
             if term in article.tf:
-                count += 1
-        return count
+                times += article.tf[term]*article.total_count
+        return times
 
-    def term_not_in(self, term, classes):
-        count = 0
+    def get_term_info(self, term, classes):
+        have_and_in = 0
+        have_and_not_in = 0
+        no_and_in = 0
+        no_and_not_in = 0
+
         for _class in classes:
-            if _class.tag == self.tag:
-                continue
+            if self.tag == _class.tag:
+                for article in _class.articles:
+                    if term in article.tf:
+                        have_and_in += 1
+                    else:
+                        no_and_in += 1
             else:
                 for article in _class.articles:
                     if term in article.tf:
-                        count += 1
+                        have_and_not_in += 1
+                    else:
+                        no_and_not_in += 1
 
-        return count
-
-    @staticmethod
-    def get_chi(classes):
-        chi = {}
-        class_count = len(classes)
-        total_article_count = 0
-        for _class in classes:
-            total_article_count += _class.length
-
-        print("Generating ------> " + ".\chi.json" + ".......")
-        for _class in classes:
-            chi[_class.tag] = {}
-            for article in _class.articles:
-                for term in article.tf:
-                    df = Class.get_df(classes, term)
-                    df_not = total_article_count - df + 1
-                    term_in_class_count = _class.term_in(term)
-                    no_term_in_class_count = _class.length - term_in_class_count
-                    term_not_in_class_count = _class.term_not_in(term, classes)
-                    no_term_not_in_class_count = total_article_count - _class.length - term_not_in_class_count
-
-                    chi[_class.tag][term] = pow(
-                        term_in_class_count * no_term_not_in_class_count - no_term_in_class_count * term_not_in_class_count,
-                        2) / (df * df_not)
-
-            chi_json = json.dumps(chi, sort_keys=True, indent=4, separators=(',', ': '))
-            file = open('./chi.json', 'w')
-            file.write(chi_json)
-            file.close()
+        return {"have_and_in": have_and_in,
+                "have_and_not_in": have_and_not_in,
+                "no_and_in": no_and_in,
+                "no_and_not_in": no_and_not_in}
 
     @staticmethod
     def get_classes(root_dir, resolver):
@@ -69,48 +57,32 @@ class Class:
         return classes
 
     @staticmethod
-    def get_ig(classes):
-        ig = {}
-        class_count = len(classes)
+    def get_chi(classes):
+        chi = {}
         total_article_count = 0
         for _class in classes:
             total_article_count += _class.length
 
-        hc = 0 - class_count * math.log(1 / class_count, 2)
-
-        print("Generating ------> " + ".\ig.json" + ".......")
+        print("Generating ------> " + ".\chi.json" + ".......")
         for _class in classes:
+            chi[_class.tag] = {}
             for article in _class.articles:
                 for term in article.tf:
-                    if term in ig:
+                    if term in chi:
                         continue
+                    else:
+                        info = _class.get_term_info(term, classes)
+                        df = info["have_and_in"] + info["have_and_not_in"]
+                        df_not = info["no_and_in"] + info["no_and_not_in"] + 1
 
-                    ig[term] = hc
-                    df = Class.get_df(classes, term)
-                    df_not = total_article_count - df + 1
+                        chi[_class.tag][term] = pow(
+                            info["have_and_in"] * info["no_and_not_in"] - info["no_and_in"] * info["have_and_not_in"],
+                            2) / (df * df_not)
 
-                    for _class_cal in classes:
-                        term_in_class_count = _class_cal.term_in(term) + 1
-                        term_not_in_class_count = _class_cal.length - term_in_class_count + 2
-
-                        ig[term] += (df / total_article_count) * (term_in_class_count / df) * math.log(
-                            term_in_class_count / df, 2)
-                        ig[term] += (df_not / total_article_count) * (term_not_in_class_count / df_not) * math.log(
-                            term_not_in_class_count / df_not, 2)
-
-            ig_json = json.dumps(ig, sort_keys=True, indent=4, separators=(',', ': '))
-            file = open('./ig.json', 'w')
-            file.write(ig_json)
+            chi_json = json.dumps(chi, sort_keys=True, indent=4, separators=(',', ': '))
+            file = open('./chi.json', 'w')
+            file.write(chi_json)
             file.close()
-
-    @staticmethod
-    def get_df(classes, term):
-        count = 0
-        for _class in classes:
-            for article in _class.articles:
-                if term in article.tf:
-                    count += 1
-        return count
 
     @staticmethod
     def get_feature():
@@ -126,6 +98,27 @@ class Class:
                 feature.append(word)
                 count += 1
 
-                if count == 15:
+                if count == 4:
                     break
+        print(feature)
         return feature
+
+    @staticmethod
+    def naive_bayes_train(classes, feature):
+        model = {}
+        print("Generating ------> " + ".\model.json" + ".......")
+        for _class in classes:
+            model[_class.tag] = {}
+
+            for word in feature:
+                model[_class.tag][word] = 1 + _class.get_term_in(word)
+
+            total_count = sum(model[_class.tag].values())
+            len_of_feature = len(feature)
+            for word in feature:
+                model[_class.tag][word] = model[_class.tag][word] / (total_count + len_of_feature)
+
+        model_json = json.dumps(model, sort_keys=True, indent=4, separators=(',', ': '))
+        file = open('./model.json', 'w')
+        file.write(model_json)
+        file.close()

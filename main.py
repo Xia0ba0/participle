@@ -6,8 +6,8 @@ from utils import get_size
 from utils import get_real_cut
 
 from train import Class
+from predict import Classifier
 
-import json
 
 def ex4():
     # 传入词典， 初始化分词器
@@ -65,16 +65,37 @@ def ex4():
 
 def ex5():
     resolver = Participle(r'.\words.txt')
-    classes = Class.get_classes(r'.\TEST', resolver)
+    classes = Class.get_classes(r'.\体育领域\体育分类测试文档', resolver)
     Class.get_chi(classes)
 
-def test():
-    f = open('./chi.json', 'r')
-    chi_dic = json.load(f)
-    return sorted(chi_dic["01足球"].items(), key=lambda x: x[1], reverse=True)[0:50]
 
+def test():
+    resolver = Participle(r'.\words.txt')
+    #classes = Class.get_classes(r'.\体育领域\体育分类测试文档', resolver)
+    # Class.get_chi(classes)
+    feature = Class.get_feature()
+
+    test_articles = resolver.resolve_dir(r'.\体育领域\体育分类训练文档\03排球', tag='03排球')
+    test_articles_2 = resolver.resolve_dir(r'.\体育领域\体育分类测试文档\03排球', tag='03排球')
+    #Class.naive_bayes_train(classes,feature)
+
+    total_1 = len(test_articles)
+    right_1 = 0
+    total_2 = len(test_articles_2)
+    right_2 = 0
+    classifier = Classifier()
+
+    for article in test_articles:
+        if classifier.classify(article) == article.tag:
+            right_1 += 1
+
+    for article in test_articles_2:
+        if classifier.classify(article) == article.tag:
+            right_2 += 1
+    print('准确率为: %%%f' % ((right_1/total_1)*100))
+    print('召回率为: %%%f' % ((right_2 / total_2) * 100))
 
 if __name__ == '__main__':
     # ex4()
-    #ex5()
-    print(test())
+    test()
+    # print(test())

@@ -25,6 +25,7 @@ class Article:
         if idf_dic is None:
             f = open(idf_json_file, 'r')
             idf_dic = json.load(f)
+            f.close()
 
         for word, tf_value in self.tf.items():
             self.w[word] = tf_value * idf_dic.get(word, 100)
@@ -70,6 +71,12 @@ class Article:
         son = (v1 * v2).sum()
         monther = math.sqrt(numpy.square(v1).sum()) * math.sqrt(numpy.square(v2).sum())
         return son / monther
+
+    def article2bag(self, feature):
+        bag = {}
+        for word in feature:
+            bag[word] = (self.tf.get(word, 0) * self.total_count)
+        return bag
 
 
 class Participle:
